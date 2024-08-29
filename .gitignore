@@ -1,3 +1,7 @@
+# App-specific
+backend/cmd/dist/
+bin/
+
 # Logs
 logs
 *.log

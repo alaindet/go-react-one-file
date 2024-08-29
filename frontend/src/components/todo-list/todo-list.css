@@ -1,0 +1,69 @@
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  gap: 1rem;
+  padding: 0;
+}
+
+.todo {
+  position: relative;
+  padding: 1rem;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  transition: 0.15s background-color ease-in-out;
+  cursor: pointer;
+  font-size: 1.3em;
+}
+
+.todo:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.todo.--done {
+  background-color: #646cff;
+  color: white;
+}
+
+.todo.--done .todo__text {
+  text-decoration: line-through;
+}
+
+.todo__icon {
+  font-size: 1.2em;
+}
+
+.todo__text {
+  text-align: left;
+  flex-grow: 1;
+}
+
+.todo__icon {
+  font-size: 1.2em;
+}
+
+.todo__remove {
+  position: relative;
+  z-index: 1;
+}
+
+.todo__done::after {
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.todo__actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.todo__actions button {
+  height: 40px; /* Just to have consistency with different icons */
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  background-color: white;
+}
