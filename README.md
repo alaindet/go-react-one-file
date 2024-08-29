@@ -1,6 +1,10 @@
 # Go/React in one file
 
-This repository demonstrates how to embed a compiled React application in a Go single binary. The application is named "YATL" for "Yet Another Todo List" and is a simple SPA + RESTful API with an in-memory database, pre-seeded on startup.
+This repository demonstrates how to embed a compiled React application in a Go single binary. The application is named "YATA" for "Yet Another Todo Application" and it's a simple React SPA coupled to a Go RESTful API with an in-memory database and pre-seeded mock data.
+
+This is not production-ready and is somewhat impractical for most real-world uses, but a frontend application embedded in a single Go binary like this is far easier to deploy and can effectively serve as a simpler alternative to Electron or Docker for desktop-like web applications and small websites that are hence very easy to deploy.
+
+The final bundle is an executable binary weighting **~8 Mb** that can be easily built for Windows, Mac or Linux from any platform just by changing the build flags in the `./build.sh` script. A comparable lightweight Docker image could easily weight 10-20 times more.
 
 ## Requirements
 
