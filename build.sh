@@ -11,6 +11,6 @@ mv ./dist ../backend/cmd/dist
 
 echo "[04/05] Building the Go application"
 cd ..
-go build -o ./bin/app -tags prod ./backend/cmd
+go build -o ./bin/app-1.0.0 -tags prod ./backend/cmd
 
 echo "[05/05] Done"
