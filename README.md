@@ -26,14 +26,15 @@ To see this in action, run these commands
 ## Development
 
 ```shell
-# Backend exposed on port 8080
-cd ./backend/cmd && wgo run .
+# Backend exposed on port 8080 (with wgo installed, see Resources section)
+wgo run ./backend/cmd
+
+# Backend exposed on port 8080 (without wgo installed)
+go run ./backend/cmd
 
 # Frontend exposed on port 5173
-cd ./frontend && npm run dev
+cd ./frontend && npm install && npm run dev
 ```
-
-### Commands
 
 ### Resources
 
