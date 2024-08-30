@@ -36,6 +36,23 @@ go run ./backend/cmd
 cd ./frontend && npm install && npm run dev
 ```
 
+## Build
+
+Run one of these scripts
+
+- `./scripts/build.sh`: Builds for your current platform
+- `./scripts/build-darwin-amd64.sh`: Builds for Mac OS with Intel processors
+- `./scripts/build-darwin-arm64.sh`: Builds for Mac OS with Apple Silicon processors
+- `./scripts/build-linux-amd64.sh`: Builds for Linux 64 bit
+- `./scripts/build-win-amd64.sh`: Builds for Windows 64bit
+- `./scripts/build-all.sh`: Builds for all the above platforms
+
+### Windows
+
+```shell
+
+```
+
 ### Resources
 
 - https://github.com/bokwoon95/wgo
