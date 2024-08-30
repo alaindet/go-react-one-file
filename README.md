@@ -27,7 +27,7 @@ To see this in action, run these commands
 
 ```shell
 # Backend exposed on port 8080 (with wgo installed, see Resources section)
-wgo run ./backend/cmd
+wgo run -verbose -xdir=frontend -xdir=docs -xdir=. -dir=backend ./backend/cmd
 
 # Backend exposed on port 8080 (without wgo installed)
 go run ./backend/cmd
