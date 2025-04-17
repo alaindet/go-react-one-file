@@ -16,7 +16,7 @@ The final bundle is an executable binary weighting **~8 Mb** that can be easily 
 To see this in action, run these commands
 
 ```shell
-./build.sh
+./scripts/build.sh
 ./bin/app
 ```
 
