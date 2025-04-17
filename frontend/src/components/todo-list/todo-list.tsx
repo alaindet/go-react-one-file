@@ -65,7 +65,7 @@ export function TodoList({
               className="todo__remove"
               onClick={() => onItemRemove(todo)}
             >
-              &times;&nbsp;{removingId === todo.id ? 'Remove?' : 'Remove'}
+              &times;&nbsp;{removingId === todo.id ? 'Remove!!!' : 'Remove'}
             </button>
 
             <button

@@ -1,16 +1,20 @@
 package main
 
-import "flag"
+import (
+	"flag"
+)
 
 type ServerConfig struct {
-	Port         string
-	IsProduction bool
+	Port             string
+	IsProduction     bool
+	JSONDatabasePath string
 }
 
 func ReadServerConfig() ServerConfig {
 	cfg := ServerConfig{}
 
 	flag.StringVar(&cfg.Port, "port", "8080", "The server port")
+	flag.StringVar(&cfg.JSONDatabasePath, "jsondb", "", "The JSON database path")
 	flag.Parse()
 
 	return cfg

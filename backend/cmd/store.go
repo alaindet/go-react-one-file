@@ -1,54 +1,71 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 	"strings"
 )
 
 type TodosStore struct {
 	todos []Todo
+	file  string
 }
 
 var (
-	ErrTodoAlreadyExists = errors.New("todo already exists")
-	ErrTodoNotFound      = errors.New("todo not found")
+	ErrTodosStore        = errors.New("todos store")
+	ErrTodoAlreadyExists = fmt.Errorf("%w: already exists", ErrTodosStore)
+	ErrTodoNotFound      = fmt.Errorf("%w: not found", ErrTodosStore)
+	ErrInvalidJSONFile   = fmt.Errorf("%w: invalid JSON file", ErrTodosStore)
 )
 
-type TodosStoreOption func(*TodosStore)
+func NewInMemoryTodosStore(initialTodos []Todo) (*TodosStore, error) {
 
-func NewTodosStore(options ...TodosStoreOption) *TodosStore {
+	store := &TodosStore{
+		todos: initialTodos,
+	}
+
+	return store, nil
+}
+
+func NewFilesystemTodosStore(jsonDbPath string) (*TodosStore, error) {
+
 	store := &TodosStore{
 		todos: make([]Todo, 0),
 	}
 
-	for _, option := range options {
-		option(store)
+	todos, err := store.LoadFromJSON(jsonDbPath)
+	if err != nil {
+		return store, err
 	}
 
-	return store
+	store.todos = todos
+	store.file = jsonDbPath
+	return store, nil
 }
 
-func WithTodos(initialTodos []Todo) TodosStoreOption {
-	return func(s *TodosStore) {
-		s.todos = initialTodos
-	}
-}
+func (s *TodosStore) LoadFromJSON(jsonDbPath string) ([]Todo, error) {
 
-func (s *TodosStore) Add(text string) (Todo, error) {
+	var todos []Todo
 
-	exists := s.ExistsText(text)
-	if exists {
-		return Todo{}, ErrTodoAlreadyExists
+	// If no file is found, initialize an empty slice
+	if _, err := os.Stat(jsonDbPath); os.IsNotExist(err) {
+		return todos, nil
 	}
 
-	todo := Todo{
-		ID:     RandomTodoID(),
-		Text:   text,
-		IsDone: false,
+	// Try loading content from file
+	jsonRawContent, err := os.ReadFile(jsonDbPath)
+	if err != nil {
+		return todos, ErrInvalidJSONFile
 	}
 
-	s.todos = append(s.todos, todo)
-	return todo, nil
+	err = json.Unmarshal(jsonRawContent, &todos)
+	if err != nil {
+		return todos, ErrInvalidJSONFile
+	}
+
+	return todos, nil
 }
 
 func (s *TodosStore) ExistsID(id string) bool {
@@ -85,10 +102,9 @@ func (s *TodosStore) GetByID(id string) (Todo, error) {
 }
 
 func (s *TodosStore) GetByText(text string) (Todo, error) {
-	textQuery := strings.ToLower(text)
 
 	for _, todo := range s.todos {
-		if strings.ToLower(todo.Text) == textQuery {
+		if strings.EqualFold(text, todo.Text) {
 			return todo, nil
 		}
 	}
@@ -105,27 +121,50 @@ func (s *TodosStore) MustGetByID(id string) Todo {
 	return todo
 }
 
-func (s *TodosStore) Update(id string, dto UpdateTodoDto) (Todo, error) {
+func (s *TodosStore) Add(text string) (Todo, error) {
 
-	existingTodo, err := s.GetByID(id)
-	if err != nil {
-		return Todo{}, err
-	}
-
-	existsByText, err := s.GetByText(dto.Text)
-	if err == nil && existsByText.ID != existingTodo.ID {
+	exists := s.ExistsText(text)
+	if exists {
 		return Todo{}, ErrTodoAlreadyExists
 	}
 
+	todo := Todo{
+		ID:     RandomTodoID(),
+		Text:   text,
+		IsDone: false,
+	}
+
+	s.todos = append(s.todos, todo)
+	s.Persist()
+
+	return todo, nil
+}
+
+func (s *TodosStore) Update(id string, dto UpdateTodoDto) (Todo, error) {
+
+	foundIndex := -1
+
 	for i, todo := range s.todos {
+
+		// Error: another todo with the same text already exists
+		if strings.EqualFold(todo.Text, dto.Text) && todo.ID != id {
+			return Todo{}, ErrTodoAlreadyExists
+		}
+
 		if todo.ID == id {
-			s.todos[i].Text = dto.Text
-			s.todos[i].IsDone = dto.IsDone
-			return s.todos[i], nil
+			foundIndex = i
 		}
 	}
 
-	return Todo{}, ErrTodoNotFound
+	if foundIndex == -1 {
+		return Todo{}, ErrTodoNotFound
+	}
+
+	s.todos[foundIndex].Text = dto.Text
+	s.todos[foundIndex].IsDone = dto.IsDone
+
+	s.Persist()
+	return s.todos[foundIndex], nil
 }
 
 func (s *TodosStore) Delete(id string) (Todo, error) {
@@ -144,6 +183,26 @@ func (s *TodosStore) Delete(id string) (Todo, error) {
 	}
 
 	s.todos = newTodos
+	s.Persist()
 
 	return existingTodo, nil
+}
+
+func (s *TodosStore) Persist() {
+
+	if s.file == "" {
+		return
+	}
+
+	jsonData, err := json.Marshal(s.todos)
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile(s.file, jsonData, 0644)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Persisted JSON database to filesystem")
 }

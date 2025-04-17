@@ -13,17 +13,8 @@ func TestCreateTodosStore(t *testing.T) {
 		{ID: "2", Text: "Bar"},
 	}
 
-	t.Run("Creates without options", func(t *testing.T) {
-		s := NewTodosStore()
-		todos := s.GetAll()
-		emptyTodos := make([]Todo, 0)
-		if !reflect.DeepEqual(todos, emptyTodos) {
-			t.Errorf("Initial todos slice is not empty")
-		}
-	})
-
 	t.Run("Creates with initial slice", func(t *testing.T) {
-		s := NewTodosStore(WithTodos(initialTodos))
+		s, _ := NewInMemoryTodosStore(initialTodos)
 		todos := s.GetAll()
 		if !reflect.DeepEqual(todos, initialTodos) {
 			t.Errorf("Initial todos are not set")
@@ -37,7 +28,7 @@ func TestReadTodosStore(t *testing.T) {
 		{ID: "2", Text: "Bar"},
 	}
 
-	s := NewTodosStore(WithTodos(initialTodos))
+	s, _ := NewInMemoryTodosStore(initialTodos)
 
 	t.Run("Checks for existing ID", func(t *testing.T) {
 		existingID := "1"
@@ -118,10 +109,12 @@ func TestReadTodosStore(t *testing.T) {
 func TestWriteTodosStore(t *testing.T) {
 
 	setupStore := func() *TodosStore {
-		return NewTodosStore(WithTodos([]Todo{
+		store, _ := NewInMemoryTodosStore([]Todo{
 			{ID: "1", Text: "Foo"},
 			{ID: "2", Text: "Bar"},
-		}))
+		})
+
+		return store
 	}
 
 	t.Run("Updates a todo", func(t *testing.T) {

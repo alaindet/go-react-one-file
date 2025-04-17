@@ -1,10 +1,10 @@
 # Go/React in one file
 
-This repository demonstrates how to embed a compiled React application in a Go single binary. The application is named "YATA" for "Yet Another Todo Application" and it's a simple React SPA coupled to a Go RESTful API with an in-memory database and pre-seeded mock data.
+This repository demonstrates how to embed a React application and a Go web server in a single binary file. The application is named **YATA** for "Yet Another Todo Application" and it's a simple React SPA coupled to a Go RESTful API with an in-memory database and pre-seeded mock data. You can optionally load and dump a simple JSON file as your database.
 
-This is not production-ready and is somewhat impractical for most real-world uses, but a frontend application embedded in a single Go binary like this is far easier to deploy and can effectively serve as a simpler alternative to Electron or Docker for desktop-like web applications and small websites that are hence very easy to deploy.
+This is not production-ready and is somewhat impractical for most real-world uses, but a modern frontend application embedded in a single Go binary like this is just one file to deploy and can effectively serve as a simpler alternative for small applications.
 
-The final bundle is an executable binary weighting **~8 Mb** that can be easily built for Windows, Mac or Linux from any platform just by changing the build flags in the `./build.sh` script. A comparable lightweight Docker image could easily weight 10-20 times more.
+The final bundle is an executable binary weighting **~8 Mb** that can be easily built for Windows, Mac or Linux from any platform just by changing the build flags in the `./build.sh` script (thank you Go team). A comparable lightweight Docker image or Electron application could easily weight 10-20 times more.
 
 ## Requirements
 
@@ -18,23 +18,43 @@ To see this in action, run these commands
 ```shell
 ./build.sh
 ./bin/app
-
-# To run it in another port
-./bin/app --port=3333
 ```
+
+## Flags
+
+- `--port` accepts a number to declare a different port for the web server
+- `--jsondb` accepts a path to optionally read and write a JSON file with that path, instead of using an in-memory database
 
 ## Development
 
-```shell
-# Backend exposed on port 8080 (with wgo installed, see Resources section)
-wgo run -verbose -xdir=frontend -xdir=docs -xdir=. -dir=backend ./backend/cmd
+- Build the front end first to allow the Go app to compile and embed it
 
-# Backend exposed on port 8080 (without wgo installed)
-go run ./backend/cmd
+  ```shell
+  ./scripts/build-frontend.sh
+  ```
 
-# Frontend exposed on port 5173
-cd ./frontend && npm install && npm run dev
-```
+- Start the backend in live reload mode on port 8080 with WGO (https://github.com/bokwoon95/wgo)
+
+  ```shell
+  wgo run -verbose \
+    -xdir=frontend \
+    -xdir=docs \
+    -xdir=scripts \
+    -xdir=. \
+    -dir=backend \
+    ./backend/cmd --port=8080
+  ```
+
+- Start the backend without live reloading on port 8080
+
+  ```shell
+  go run ./backend/cmd --port=8080
+  ```
+
+- On another terminal, start the front end Vite development server on port 5173
+  ```shell
+  npm run --prefix=frontend dev
+  ```
 
 ## Build
 
@@ -46,12 +66,6 @@ Run one of these scripts
 - `./scripts/build-linux-amd64.sh`: Builds for Linux 64 bit
 - `./scripts/build-win-amd64.sh`: Builds for Windows 64bit
 - `./scripts/build-all.sh`: Builds for all the above platforms
-
-### Windows
-
-```shell
-
-```
 
 ### Resources
 
