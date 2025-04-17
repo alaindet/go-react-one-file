@@ -17,7 +17,7 @@ To see this in action, run these commands
 
 ```shell
 ./scripts/build.sh
-./bin/app
+./bin/app-1.0.0
 ```
 
 ## Flags
