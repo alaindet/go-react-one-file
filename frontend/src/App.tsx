@@ -7,7 +7,7 @@ import { TodoList } from './components/todo-list/todo-list';
 import { extractQueryParams } from './utils/extract-query-params';
 
 export function App() {
-  const [port, setPort] = useState('8080');
+  const [port, setPort] = useState('8082');
   const apiUrl = useMemo(() => `http://localhost:${port}/api`, [port]);
   const [removingId, setRemovingId] = useState<Todo['id'] | null>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -30,7 +30,7 @@ export function App() {
     const url = `${apiUrl}/todos`;
     const rawRes = await fetch(url);
     const res = (await rawRes.json()) as ServerResponse<Todo[]>;
-    setTodos(res.data);
+    setTodos(res.data ?? []);
   }
 
   async function handleCreateTodo(text: string) {

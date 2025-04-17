@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 func MustJson(data any) []byte {
@@ -25,4 +26,8 @@ func Resp(message string, data any) map[string]any {
 		"message": message,
 		"data":    data,
 	}
+}
+
+func CompareLower(a, b string) bool {
+	return strings.ToLower(a) == strings.ToLower(b)
 }

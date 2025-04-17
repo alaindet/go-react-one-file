@@ -12,9 +12,15 @@ import (
 var frontendEmbedded embed.FS
 
 func main() {
-	// Init
+	// Read input
 	cfg := ReadServerConfig()
-	todosStore := NewTodosStore(WithTodos(mockTodos))
+
+	// Create store based on input
+	todosStore, err := CreateStoreFromServerConfig(cfg)
+	if err != nil {
+		panic(err)
+	}
+
 	server := http.NewServeMux()
 
 	// Serve the frontend
@@ -24,14 +30,14 @@ func main() {
 	}
 	server.Handle("/", http.FileServer(http.FS(frontendFs)))
 
-	// Routes
+	// Register routes
 	server.HandleFunc("POST /api/todos", createTodo(todosStore))
 	server.HandleFunc("GET /api/todos", getTodos(todosStore))
 	server.HandleFunc("GET /api/todos/{todoId}", getTodo(todosStore))
 	server.HandleFunc("PUT /api/todos/{todoId}", updateTodo(todosStore))
 	server.HandleFunc("DELETE /api/todos/{todoId}", deleteTodo(todosStore))
 
-	// Middleware
+	// Register middleware
 	serverWithMiddleware := corsMiddleware(server)
 	serverWithMiddleware = loggingMiddleware(serverWithMiddleware)
 
@@ -45,10 +51,18 @@ func main() {
 		}
 	}()
 
-	// Bootstrap
+	// Bootstrap the web server
 	fmt.Printf("YATA - Yet Another Todo App has started on port %s\n", cfg.Port)
 	err = http.ListenAndServe(":"+cfg.Port, serverWithMiddleware)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func CreateStoreFromServerConfig(cfg ServerConfig) (*TodosStore, error) {
+	if cfg.JSONDatabasePath != "" {
+		return NewFilesystemTodosStore(cfg.JSONDatabasePath)
+	}
+
+	return NewInMemoryTodosStore(mockTodos)
 }
